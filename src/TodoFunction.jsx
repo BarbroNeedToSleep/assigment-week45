@@ -1,36 +1,92 @@
 import React from "react";
+import { useForm } from "react-hook-form";
+
 
 export default function TodoFunction() {
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm();
+
+    const onSubmit = (data) => {
+        console.log("Form data:", data);
+    };
+
     return (
         <>
-            {/* --- Form area --- */}
             <div className="container-lg mt-1 mb-5">
                 <div className="p-2 border border-2 border-secondary-subtle bg-greengray rounded-1 shadow-sm">
 
-                <form>
+                <form onSubmit={handleSubmit(onSubmit)} noValidate>
                         <div className="row g-3">
                             <div className="col">
                                 <label className="form-label">Title</label>
-                                <input type="text" className="form-control" placeholder="Enter task title" />
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    placeholder="Enter task title"
+                                    {...register("title", { required: "Title is required" })}
+                                />
+                                {errors.title && (
+                                    <div className="text-danger small">{errors.title.message}</div>
+                                )}
+
                             </div>
                         </div>
 
                         <div className="row g-3">
                             <div className="col">
                                 <label className="form-label mt-3">Description</label>
-                                <textarea className="form-control" rows={3} placeholder="Enter task description"></textarea>
+                                <textarea
+                                    className="form-control"
+                                    rows={3}
+                                    placeholder="Enter task description"
+                                    {...register("description", { required: "Description is required" })}
+                                />
+                                {errors.description && (
+                                    <div className="text-danger small">{errors.description.message}</div>
+                                )}
+
                             </div>
                         </div>
 
                         <div className="row g-3 align-items-end">
                             <div className="col-md-6">
                                 <label className="form-label mt-3">Due Date</label>
-                                <input type="datetime-local" className="form-control" />
+                                <input
+                                    type="datetime-local"
+                                    className="form-control"
+                                    {...register("dueDate", {
+                                        required: "Due date is required",
+                                        validate: (value) => {
+                                            const selected = new Date(value);
+                                            const now = new Date();
+
+                                            // 1 hour from now
+                                            const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000);
+
+                                            if (selected < oneHourFromNow) {
+                                                return "Due date must be at least 1 hour in the future";
+                                            }
+
+                                            return true;
+                                        },
+                                    })}
+                                />
+                                {errors.dueDate && (
+                                    <div className="text-danger small">{errors.dueDate.message}</div>
+                                )}
+
                             </div>
 
                             <div className="col-md-6">
                                 <label className="form-label mt-3">Assign to Person (Optional)</label>
-                                <select className="form-select" defaultValue="">
+                                <select
+                                    className="form-select"
+                                    defaultValue=""
+                                    {...register("assignee")}>
+
                                     <option value="" disabled>
                                         -- Select Person (Optional) --
                                     </option>
@@ -73,7 +129,7 @@ export default function TodoFunction() {
 
                         <div className="row g-3 mt-3">
                             <div className="col text-end">
-                                <button type="button" className="btn btn-primary">
+                                <button type="submit" className="btn btn-primary">
                                     + Add Todo
                                 </button>
                             </div>

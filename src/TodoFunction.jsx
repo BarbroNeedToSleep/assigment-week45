@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 
 
@@ -6,11 +6,27 @@ export default function TodoFunction() {
     const {
         register,
         handleSubmit,
+        reset,
         formState: { errors },
     } = useForm();
 
+
+    const [todos, setTodos] = useState([]);
+
     const onSubmit = (data) => {
-        console.log("Form data:", data);
+        const newTodo = {
+            id: crypto.randomUUID ? crypto.randomUUID() : Date.now(),
+            title: data.title,
+            description: data.description,
+            dueDate: data.dueDate,
+            assignee: data.assignee || "",
+            createdAt: new Date(),
+            completed: false,
+        };
+
+        setTodos((prevTodos) => [...prevTodos, newTodo]);
+        reset(); // clears the form after adding
+        console.log("New todo created:", newTodo);
     };
 
     return (
@@ -162,54 +178,80 @@ export default function TodoFunction() {
                 </div>
 
                 <div className="p-2 border-start border-end border-bottom border-1 border-secondary-subtle bg-greengray rounded-bottom-1 shadow-sm">
-                    <div className="p-3 border border-1 border-secondary-subtle bg-white rounded-1 mb-2">
-                        <div className="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 className="fw-semibold mb-1">Example Todo</h6>
-                                <p className="text-muted mb-2">Description goes here</p>
-                                <div className="d-flex flex-wrap align-items-center gap-2">
-                  <span className="text-muted">
-                    <i className="bi bi-calendar3 me-1"></i> Due: 2025-07-10
-                  </span>
-                                    <span className="badge bg-info text-dark d-flex align-items-center">
-                    <i className="bi bi-person-fill me-1"></i> John Doe
-                  </span>
-                                    <span className="badge bg-secondary d-flex align-items-center">
-                    <i className="bi bi-paperclip me-1"></i> 2 attachments
-                  </span>
-                                </div>
-                            </div>
+                    {/* If no todos yet */}
+                    {todos.length === 0 && (
+                        <div className="p-3 border border-1 border-secondary-subtle bg-white rounded-1 mb-2">
+                            <p className="mb-0 text-muted">No todos yet. Add one above.</p>
+                        </div>
+                    )}
 
-                            <div className="d-flex align-items-center justify-content-end gap-2">
-                                <small className="text-muted">Created: 2025-07-01</small>
-                                <div className="btn-group" role="group" aria-label="Task actions">
-                                    <button
-                                        type="button"
-                                        className="btn btn-outline-success p-1"
-                                        style={{ width: 36, height: 36 }}
-                                    >
-                                        <i className="bi bi-check-lg"></i>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="btn btn-outline-primary p-1"
-                                        style={{ width: 36, height: 36 }}
-                                    >
-                                        <i className="bi bi-pencil"></i>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="btn btn-outline-danger p-1"
-                                        style={{ width: 36, height: 36 }}
-                                    >
-                                        <i className="bi bi-trash"></i>
-                                    </button>
+                    {/* Render each todo */}
+                    {todos.map((todo) => (
+                        <div
+                            key={todo.id}
+                            className="p-3 border border-1 border-secondary-subtle bg-white rounded-1 mb-2"
+                        >
+                            <div className="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 className="fw-semibold mb-1">{todo.title}</h6>
+                                    <p className="text-muted mb-2">{todo.description}</p>
+
+                                    <div className="d-flex flex-wrap align-items-center gap-2">
+                        <span className="text-muted">
+                            <i className="bi bi-calendar3 me-1"></i>
+                            Due: {new Date(todo.dueDate).toLocaleString()}
+                        </span>
+
+                                        {todo.assignee && (
+                                            <span className="badge bg-info text-dark d-flex align-items-center">
+                                <i className="bi bi-person-fill me-1"></i>
+                                                {todo.assignee}
+                            </span>
+                                        )}
+
+                                        <span className="badge bg-secondary d-flex align-items-center">
+                            <i className="bi bi-paperclip me-1"></i>
+                            0 attachments
+                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="d-flex align-items-center justify-content-end gap-2">
+                                    <small className="text-muted">
+                                        Created: {todo.createdAt.toLocaleString()}
+                                    </small>
+                                    <div className="btn-group" role="group" aria-label="Task actions">
+                                        <button
+                                            type="button"
+                                            className="btn btn-outline-success p-1"
+                                            style={{ width: 36, height: 36 }}
+                                            disabled
+                                        >
+                                            <i className="bi bi-check-lg"></i>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="btn btn-outline-primary p-1"
+                                            style={{ width: 36, height: 36 }}
+                                            disabled
+                                        >
+                                            <i className="bi bi-pencil"></i>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="btn btn-outline-danger p-1"
+                                            style={{ width: 36, height: 36 }}
+                                            disabled
+                                        >
+                                            <i className="bi bi-trash"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    ))}
                 </div>
             </div>
-        </>
+            </>
     );
 }

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-
+import TodoItem from "./TodoItem.jsx";
 
 export default function TodoFunction() {
     const {
@@ -10,8 +10,8 @@ export default function TodoFunction() {
         formState: { errors },
     } = useForm();
 
-
     const [todos, setTodos] = useState([]);
+
 
     const onSubmit = (data) => {
         const newTodo = {
@@ -22,11 +22,24 @@ export default function TodoFunction() {
             assignee: data.assignee || "",
             createdAt: new Date(),
             completed: false,
+            attachmentsCount: 0, // new todos start with 0 attachments
         };
 
         setTodos((prevTodos) => [...prevTodos, newTodo]);
-        reset(); // clears the form after adding
+        reset();
         console.log("New todo created:", newTodo);
+    };
+
+    const toggleComplete = (id) => {
+        setTodos((prevTodos) =>
+            prevTodos.map((todo) =>
+                todo.id === id ? { ...todo, completed: !todo.completed } : todo
+            )
+        );
+    };
+
+    const deleteTodo = (id) => {
+        setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
     };
 
     return (
@@ -178,48 +191,37 @@ export default function TodoFunction() {
                 </div>
 
                 <div className="p-2 border-start border-end border-bottom border-1 border-secondary-subtle bg-greengray rounded-bottom-1 shadow-sm">
+
                     {/* If no todos yet */}
                     {todos.length === 0 && (
                         <div className="p-3 border border-1 border-secondary-subtle bg-white rounded-1 mb-2">
-                            <p className="mb-0 text-muted">No todos yet. Add one above.</p>
-                        </div>
-                    )}
-
-                    {/* Render each todo */}
-                    {todos.map((todo) => (
-                        <div
-                            key={todo.id}
-                            className="p-3 border border-1 border-secondary-subtle bg-white rounded-1 mb-2"
-                        >
                             <div className="d-flex justify-content-between align-items-start">
                                 <div>
-                                    <h6 className="fw-semibold mb-1">{todo.title}</h6>
-                                    <p className="text-muted mb-2">{todo.description}</p>
+                                    <div className="d-flex align-items-center gap-2 mb-1">
+                                        <h6 className="fw-semibold mb-0">Example Todo</h6>
+                                        <span className="badge bg-success">DONE</span>
+                                    </div>
+
+                                    <p className="text-muted mb-2">Description goes here</p>
 
                                     <div className="d-flex flex-wrap align-items-center gap-2">
-                        <span className="text-muted">
-                            <i className="bi bi-calendar3 me-1"></i>
-                            Due: {new Date(todo.dueDate).toLocaleString()}
-                        </span>
+                    <span className="text-muted">
+                        <i className="bi bi-calendar3 me-1"></i>
+                        Due: 2025-07-10 12:00
+                    </span>
 
-                                        {todo.assignee && (
-                                            <span className="badge bg-info text-dark d-flex align-items-center">
-                                <i className="bi bi-person-fill me-1"></i>
-                                                {todo.assignee}
-                            </span>
-                                        )}
+                                        <span className="badge bg-info text-dark d-flex align-items-center">
+                        <i className="bi bi-person-fill me-1"></i> John Doe
+                    </span>
 
                                         <span className="badge bg-secondary d-flex align-items-center">
-                            <i className="bi bi-paperclip me-1"></i>
-                            0 attachments
-                        </span>
+                        <i className="bi bi-paperclip me-1"></i> 2 attachments
+                    </span>
                                     </div>
                                 </div>
 
                                 <div className="d-flex align-items-center justify-content-end gap-2">
-                                    <small className="text-muted">
-                                        Created: {todo.createdAt.toLocaleString()}
-                                    </small>
+                                    <small className="text-muted">Created: 2025-07-01 12:00</small>
                                     <div className="btn-group" role="group" aria-label="Task actions">
                                         <button
                                             type="button"
@@ -249,6 +251,18 @@ export default function TodoFunction() {
                                 </div>
                             </div>
                         </div>
+                    )}
+
+
+
+
+                    {todos.map((todo) => (
+                        <TodoItem
+                            key={todo.id}
+                            todo={todo}
+                            toggleComplete={toggleComplete}
+                            deleteTodo={deleteTodo}
+                        />
                     ))}
                 </div>
             </div>
